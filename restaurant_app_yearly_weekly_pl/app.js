@@ -67,9 +67,12 @@ async function loadCloudData(){
 
     render();
   async function loadCloudData(){
-  if(!cloud)return;
+  if(!cloud){
+    render();
+    return;
+  }
 
-  const { data } = await cloud
+  const { data, error } = await cloud
     .from("restaurant_data")
     .select("*")
     .eq("id","main")
@@ -83,12 +86,12 @@ async function loadCloudData(){
     localStorage.setItem("yearweek_incomes", JSON.stringify(incomes));
     localStorage.setItem("yearweek_expenses", JSON.stringify(expenses));
     localStorage.setItem("yearweek_wages", JSON.stringify(wages));
-
-    render();
   }
- }
-}function renderYearlyWeeks(){
-  const year=+document.getElementById("yearInput").value||new Date().getFullYear();
+
+  render();
+  }
+
+function renderYearlyWeeks(){  const year=+document.getElementById("yearInput").value||new Date().getFullYear();
   let firstMonday=startOfWeek(new Date(year,0,1));
   let rows="", yearProfit=0, lossWeeks=0, profitWeeks=0, bestProfit=-Infinity, bestLabel="$0";
   for(let i=0;i<54;i++){
