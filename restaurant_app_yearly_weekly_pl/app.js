@@ -98,6 +98,7 @@ loadCloudData();
   profitWeeks.textContent=profitWeeks;
   bestWeek.textContent=bestProfit===-Infinity?"$0":bestLabel;
 }
+loadCloudData();
 function render(){
 const d=viewDate.value||today,dt=parseDate(d),ws=startOfWeek(dt),we=endOfWeek(dt),[pws,pwe]=prevWeekRange(dt),pmd=prevMonthDate(dt);
 const day=calcPeriod(x=>x===d),week=calcPeriod(x=>inRange(x,ws,we)),pweek=calcPeriod(x=>inRange(x,pws,pwe)),month=calcPeriod(x=>sameMonth(x,dt)),pmonth=calcPeriod(x=>sameMonth(x,pmd));
