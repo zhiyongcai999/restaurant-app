@@ -1,0 +1,6 @@
+{
+  "name": "餐馆老板App年度周结盈亏版",
+  "short_name": "周结盈亏",
+  "start_url": "index.html",
+  "display": "standalone"
+}

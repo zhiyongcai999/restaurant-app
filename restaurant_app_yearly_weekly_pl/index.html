@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>餐馆老板App - 年度周结盈亏版</title>
+<style>
+:root{
+  --bg:#f3f5f8;--card:#fff;--main:#111827;--line:#e5e7eb;
+  --blue:#eef4ff;--green:#e8f7ee;--red:#ffe8e8;--yellow:#fff6dc;--purple:#f2ecff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#111}
+.app{max-width:660px;margin:0 auto;min-height:100vh;padding-bottom:82px}
+.header{background:linear-gradient(135deg,#111827,#273449);color:#fff;padding:18px 16px 22px;border-bottom-left-radius:24px;border-bottom-right-radius:24px}
+.header h1{font-size:22px;margin:0 0 6px}.header p{margin:0;color:#d1d5db;font-size:13px}
+.card{background:var(--card);border-radius:18px;margin:12px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.title h3{margin:0;font-size:17px}
+.badge{font-size:12px;padding:5px 9px;border-radius:999px;background:#f3f4f6;color:#555}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{border-radius:15px;padding:13px;background:var(--blue)}
+.stat b{display:block;font-size:12px;color:#555;margin-bottom:7px}.stat span{font-size:20px;font-weight:850}
+.good{background:var(--green)}.bad{background:var(--red)}.warn{background:var(--yellow)}.purple{background:var(--purple)}
+label{font-size:13px;color:#555;display:block;margin:8px 0 4px}
+input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;background:#fff}
+button{border:0;border-radius:14px;background:var(--main);color:white;padding:13px 16px;font-size:16px;font-weight:650;width:100%;margin-top:10px}
+button.light{background:#eef2ff;color:#111827}button.danger{background:#b91c1c}
+.page{display:none}.page.active{display:block}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);max-width:660px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:68px;z-index:10}
+.nav{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:#6b7280;gap:3px}.nav.active{color:#111827;font-weight:800}.icon{font-size:20px}
+.table{width:100%;border-collapse:collapse;font-size:12px}.table th,.table td{border-bottom:1px solid #eee;padding:8px;text-align:left}.table-wrap{max-height:430px;overflow:auto}
+.notice{font-size:13px;line-height:1.5;color:#555;background:#f9fafb;border-radius:12px;padding:10px}
+.bar{height:10px;background:#eef2f7;border-radius:999px;overflow:hidden;margin-top:6px}.bar div{height:100%;background:#111827;border-radius:999px;width:0}
+.item{padding:10px;border:1px solid #eee;border-radius:12px;background:#fafafa;font-size:13px;margin-bottom:8px}
+.week-good{background:#e8f7ee}.week-bad{background:#ffe8e8}.week-empty{background:#f9fafb;color:#999}
+.profit-plus{color:#087d2b;font-weight:800}.profit-minus{color:#b91c1c;font-weight:800}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+  <h1>餐馆老板App</h1>
+  <p>日记录 · 周总结 · 年度52/53周盈亏表</p>
+</div>
+
+<section id="home" class="page active">
+  <div class="card">
+    <label>查看日期</label><input type="date" id="viewDate" onchange="render()">
+  </div>
+
+  <div class="card">
+    <div class="title"><h3>今日核心</h3><span class="badge">当天结果</span></div>
+    <div class="row">
+      <div class="stat"><b>营业额</b><span id="dayRevenue">$0</span></div>
+      <div class="stat" id="dayProfitBox"><b>净利润</b><span id="dayProfit">$0</span></div>
+      <div class="stat"><b>总支出</b><span id="dayExpense">$0</span></div>
+      <div class="stat"><b>现金净流入</b><span id="cashNet">$0</span></div>
+      <div class="stat"><b>总单数</b><span id="dayOrders">0</span></div>
+      <div class="stat"><b>平均客单价</b><span id="avgOrder">$0</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title"><h3>本周总结分析</h3><span class="badge">星期天结算</span></div>
+    <div class="row">
+      <div class="stat"><b>本周营业额</b><span id="weekRevenue">$0</span></div>
+      <div class="stat" id="weekProfitBox"><b>本周利润</b><span id="weekProfit">$0</span></div>
+      <div class="stat"><b>本周采购</b><span id="weekPurchase">$0</span></div>
+      <div class="stat"><b>本周工资</b><span id="weekWage">$0</span></div>
+      <div class="stat"><b>本周租金/固定</b><span id="weekRent">$0</span></div>
+      <div class="stat"><b>本周维修/其他</b><span id="weekOther">$0</span></div>
+      <div class="stat purple"><b>周净利率</b><span id="weekNetRate">0%</span></div>
+      <div class="stat purple"><b>比上周营业额</b><span id="weekCompare">0%</span></div>
+    </div>
+    <div id="weekJudgement" class="notice" style="margin-top:12px;">暂无周数据。</div>
+  </div>
+
+  <div class="card">
+    <div class="title"><h3>本月分析</h3><span class="badge">长期判断</span></div>
+    <div class="row">
+      <div class="stat"><b>本月营业额</b><span id="monthRevenue">$0</span></div>
+      <div class="stat" id="monthProfitBox"><b>本月利润</b><span id="monthProfit">$0</span></div>
+      <div class="stat"><b>本月采购</b><span id="monthPurchase">$0</span></div>
+      <div class="stat"><b>本月工资</b><span id="monthWage">$0</span></div>
+      <div class="stat"><b>本月租金/固定</b><span id="monthFixed">$0</span></div>
+      <div class="stat"><b>亏损天数</b><span id="lossDays">0</span></div>
+    </div>
+    <div id="judgement" class="notice" style="margin-top:12px;">暂无数据。</div>
+  </div>
+</section>
+
+<section id="income" class="page">
+  <div class="card">
+    <div class="title"><h3>收入录入</h3><span class="badge">每天一条</span></div>
+    <label>日期</label><input type="date" id="incomeDate">
+    <label>现金收入</label><input type="number" id="cash" placeholder="0">
+    <label>刷卡收入</label><input type="number" id="card" placeholder="0">
+    <label>Uber收入</label><input type="number" id="uber" placeholder="0">
+    <label>DoorDash收入</label><input type="number" id="doordash" placeholder="0">
+    <label>熊猫收入</label><input type="number" id="panda" placeholder="0">
+    <div class="row"><div><label>堂吃单数</label><input type="number" id="dineinOrders"></div><div><label>外卖单数</label><input type="number" id="deliveryOrders"></div></div>
+    <label>备注</label><input id="incomeNote" placeholder="天气/活动/异常">
+    <button onclick="saveIncome()">保存当天收入</button>
+  </div>
+</section>
+
+<section id="expense" class="page">
+  <div class="card">
+    <div class="title"><h3>支出明细录入</h3><span class="badge">每笔保存</span></div>
+    <label>日期</label><input type="date" id="expenseDate">
+    <label>支出大类</label><select id="expenseType" onchange="setExpenseOptions()">
+      <option>采购</option><option>工资外支出</option><option>租金/固定</option><option>维修</option><option>平台费用</option><option>其他</option>
+    </select>
+    <label>细分类别</label><select id="expenseCategory"></select>
+    <label>支出名称（可自由填写）</label><input id="expenseName" placeholder="例如：房租日均、冰箱维修、牛肉">
+    <label>供应商/对象</label><input id="expenseSupplier" placeholder="市场/房东/维修师傅/供应商">
+    <label>金额</label><input type="number" id="expenseAmount" placeholder="0">
+    <label>支付方式</label><select id="expensePay"><option>现金</option><option>转账</option><option>刷卡</option><option>其他</option></select>
+    <div class="row"><div><label>是否固定支出</label><select id="isFixed"><option>否</option><option>是</option></select></div><div><label>是否日均拆分</label><select id="isDailySplit"><option>否</option><option>是</option></select></div></div>
+    <label>备注</label><input id="expenseNote" placeholder="例如：月租拆分到每天 / 修机器">
+    <button onclick="saveExpense()">保存支出</button>
+  </div>
+</section>
+
+<section id="wage" class="page">
+  <div class="card">
+    <div class="title"><h3>员工工资录入</h3><span class="badge">周结工资</span></div>
+    <label>日期</label><input type="date" id="wageDate">
+    <label>员工姓名</label><input id="employee" placeholder="例如：San">
+    <label>岗位</label><select id="role"><option>厨房</option><option>前台</option><option>服务员</option><option>经理</option><option>其他</option></select>
+    <div class="row"><div><label>小时</label><input type="number" id="hours"></div><div><label>时薪</label><input type="number" id="rate"></div></div>
+    <label>工资金额</label><input type="number" id="wageAmount">
+    <label>支付方式</label><select id="wagePay"><option>现金</option><option>转账</option><option>刷卡</option><option>其他</option></select>
+    <label>备注</label><input id="wageNote" placeholder="晚班/加班/周结">
+    <button class="light" onclick="calcWage()">小时 × 时薪</button><button onclick="saveWage()">保存工资</button>
+  </div>
+</section>
+
+<section id="records" class="page">
+  <div class="card">
+    <div class="title"><h3>年度周结盈亏表</h3><span class="badge">52/53周总览</span></div>
+    <label>选择年份</label><input type="number" id="yearInput" onchange="renderYearlyWeeks()" min="2020" max="2035">
+    <div class="row" style="margin-top:10px">
+      <div class="stat"><b>年度累计利润</b><span id="yearProfit">$0</span></div>
+      <div class="stat"><b>亏损周数</b><span id="lossWeeks">0</span></div>
+      <div class="stat"><b>盈利周数</b><span id="profitWeeks">0</span></div>
+      <div class="stat"><b>最好一周</b><span id="bestWeek">$0</span></div>
+    </div>
+    <div class="notice" style="margin-top:10px;">绿色 = 盈利周；红色 = 亏损周；灰色 = 没有数据。这样一年下来可以清楚记住哪几周没有盈利。</div>
+    <div class="table-wrap" style="margin-top:10px">
+      <table class="table"><thead><tr><th>周</th><th>日期范围</th><th>营业额</th><th>支出</th><th>利润</th><th>状态</th></tr></thead><tbody id="yearWeekTable"></tbody></table>
+    </div>
+  </div>
+
+  <div class="card"><div class="title"><h3>全部记录</h3><span class="badge">历史明细</span></div><button class="light" onclick="exportCSV()">导出CSV</button></div>
+  <div class="card"><h3>收入记录</h3><div class="table-wrap"><table class="table"><thead><tr><th>日期</th><th>现金</th><th>刷卡</th><th>外卖</th><th>单数</th><th>总额</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div>
+  <div class="card"><h3>支出记录</h3><div class="table-wrap"><table class="table"><thead><tr><th>日期</th><th>大类</th><th>名称</th><th>金额</th><th>支付</th><th>删</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div>
+  <div class="card"><h3>工资记录</h3><div class="table-wrap"><table class="table"><thead><tr><th>日期</th><th>员工</th><th>小时</th><th>金额</th><th>支付</th><th>删</th></tr></thead><tbody id="wageTable"></tbody></table></div></div>
+</section>
+
+<div class="bottom">
+  <div class="nav active" onclick="go('home',this)"><div class="icon">📊</div>看板</div>
+  <div class="nav" onclick="go('income',this)"><div class="icon">💰</div>收入</div>
+  <div class="nav" onclick="go('expense',this)"><div class="icon">🧾</div>支出</div>
+  <div class="nav" onclick="go('wage',this)"><div class="icon">👥</div>工资</div>
+  <div class="nav" onclick="go('records',this)"><div class="icon">📋</div>周表</div>
+</div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
