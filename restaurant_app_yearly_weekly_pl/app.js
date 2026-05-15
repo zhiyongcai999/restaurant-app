@@ -48,25 +48,6 @@ function delItem(type,i){if(type==="e")expenses.splice(i,1);if(type==="w")wages.
 function calcPeriod(fn){let revenue=0,cash=0,card=0,delivery=0,orders=0,purchase=0,wage=0,fixed=0,repair=0,platform=0,other=0,cashPaid=0,lossDays=0,days=0;Object.keys(incomes).forEach(d=>{if(fn(d)){let x=incomes[d],r=incomeTotal(x);revenue+=r;cash+=x.cash||0;card+=x.card||0;delivery+=x.delivery||0;orders+=(x.dineinOrders||0)+(x.deliveryOrders||0);if(r>0)days++}});expenses.forEach(x=>{if(fn(x.date)){if(x.type==="采购")purchase+=x.amount;else if(x.type==="租金/固定")fixed+=x.amount;else if(x.type==="维修")repair+=x.amount;else if(x.type==="平台费用")platform+=x.amount;else other+=x.amount;if(x.pay==="现金")cashPaid+=x.amount}});wages.forEach(x=>{if(fn(x.date)){wage+=x.amount;if(x.pay==="现金")cashPaid+=x.amount}});Object.keys(incomes).forEach(d=>{if(fn(d)){let x=incomes[d],r=incomeTotal(x);let e=expenses.filter(v=>v.date===d).reduce((s,v)=>s+v.amount,0);let w=wages.filter(v=>v.date===d).reduce((s,v)=>s+v.amount,0);if(r-(e+w)<0)lossDays++}});let expense=purchase+wage+fixed+repair+platform+other;return{revenue,cash,card,delivery,orders,purchase,wage,fixed,repair,platform,other,expense,profit:revenue-expense,cashPaid,cashNet:cash-cashPaid,lossDays,days}}
 function compare(cur,prev){if(prev===0)return cur>0?"+100%":"0%";let v=(cur-prev)/prev*100;return (v>=0?"+":"")+v.toFixed(1)+"%"}
 async function loadCloudData(){
-  if(!cloud)return;
-
-  const { data } = await cloud
-    .from("restaurant_data")
-    .select("*")
-    .eq("id","main")
-    .single();
-
-  if(data){
-    incomes = data.incomes || {};
-    expenses = data.expenses || [];
-    wages = data.wages || [];
-
-    localStorage.setItem("yearweek_incomes", JSON.stringify(incomes));
-    localStorage.setItem("yearweek_expenses", JSON.stringify(expenses));
-    localStorage.setItem("yearweek_wages", JSON.stringify(wages));
-
-    render();
-  async function loadCloudData(){
   if(!cloud){
     render();
     return;
