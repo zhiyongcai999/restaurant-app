@@ -1,9 +1,4 @@
-const SUPABASE_URL = 'https://uqijorymsxivkdhmnyf.supabase.co';
-const SUPABASE_KEY = ‘sb_publishable_LSK_ODw36B9f8LN27-kUNw_LKYfytfm’；
-  const cloud = (typeof supabase !== 'undefined' && SUPABASE_KEY)
-? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-: null;const today=new Date().toISOString().slice(0,10);
-["viewDate","incomeDate","expenseDate","wageDate"].forEach(id=>document.getElementById(id).value=today);
+const today = new Date().toISOString().slice(0,10);
 document.getElementById("yearInput").value=new Date().getFullYear();
 let incomes=JSON.parse(localStorage.getItem("yearweek_incomes")||"{}");
 let expenses=JSON.parse(localStorage.getItem("yearweek_expenses")||"[]");
