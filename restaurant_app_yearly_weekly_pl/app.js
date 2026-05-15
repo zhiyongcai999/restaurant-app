@@ -90,8 +90,8 @@ async function loadCloudData(){
 
   render();
   }
-
-function renderYearlyWeeks(){  const year=+document.getElementById("yearInput").value||new Date().getFullYear();
+loadCloudData();
+  function renderYearlyWeeks(){  const year=+document.getElementById("yearInput").value||new Date().getFullYear();
   let firstMonday=startOfWeek(new Date(year,0,1));
   let rows="", yearProfit=0, lossWeeks=0, profitWeeks=0, bestProfit=-Infinity, bestLabel="$0";
   for(let i=0;i<54;i++){
