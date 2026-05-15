@@ -17,8 +17,21 @@ setExpenseOptions();
 function go(id,el){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));el.classList.add("active");render()}
 function money(n){return "$"+(Number(n)||0).toFixed(2)} 
 function pct(n){return ((Number(n)||0)*100).toFixed(1)+"%"}
-function save(){localStorage.setItem("yearweek_incomes",JSON.stringify(incomes));localStorage.setItem("yearweek_expenses",JSON.stringify(expenses));localStorage.setItem("yearweek_wages",JSON.stringify(wages))}
-function parseDate(s){let p=s.split("-").map(Number);return new Date(p[0],p[1]-1,p[2])}
+async function save(){
+localStorage.setItem("yearweek_incomes",JSON.stringify(incomes));
+localStorage.setItem("yearweek_expenses",JSON.stringify(expenses));
+localStorage.setItem("yearweek_wages",JSON.stringify(wages));
+
+if(cloud){
+await cloud.from("restaurant_data").upsert([{
+id:"main",
+incomes,
+expenses,
+wages,
+updated_at:new Date()
+}]);
+}
+}function parseDate(s){let p=s.split("-").map(Number);return new Date(p[0],p[1]-1,p[2])}
 function dateStr(d){return d.toISOString().slice(0,10)} 
 function startOfWeek(d){let x=new Date(d);let day=x.getDay();let diff=(day===0?-6:1-day);x.setDate(x.getDate()+diff);return x}
 function endOfWeek(d){let s=startOfWeek(d);let e=new Date(s);e.setDate(s.getDate()+6);return e}
