@@ -1,4 +1,13 @@
-const today=new Date().toISOString().slice(0,10);
+const SUPABASE_URL = 'https://uqijorymsxivkdhmnyf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_xxxxx';
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const STORE_ID = '1';
+const today = new Date().toISOString().slice(0,10);
 ["viewDate","incomeDate","expenseDate","wageDate"].forEach(id=>document.getElementById(id).value=today);
 document.getElementById("yearInput").value=new Date().getFullYear();
 let incomes=JSON.parse(localStorage.getItem("yearweek_incomes")||"{}");
